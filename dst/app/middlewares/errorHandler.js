@@ -25,9 +25,9 @@ exports.default = (err, __, res, next) => {
                 //     apiError = new APIError(UNAUTHORIZED, [err]);
                 //     break;
                 // 403
-                // case (err instanceof waiter.factory.errors.Forbidden):
-                //     apiError = new APIError(FORBIDDEN, [err]);
-                //     break;
+                case (err instanceof waiter.factory.errors.Forbidden):
+                    apiError = new api_1.APIError(http_status_1.FORBIDDEN, [err]);
+                    break;
                 // 404
                 case (err instanceof waiter.factory.errors.NotFound):
                     apiError = new api_1.APIError(http_status_1.NOT_FOUND, [err]);
@@ -41,9 +41,9 @@ exports.default = (err, __, res, next) => {
                     apiError = new api_1.APIError(http_status_1.TOO_MANY_REQUESTS, [err]);
                     break;
                 // 503
-                // case (err instanceof waiter.factory.errors.ServiceUnavailable):
-                //     apiError = new APIError(SERVICE_UNAVAILABLE, [err]);
-                //     break;
+                case (err instanceof waiter.factory.errors.ServiceUnavailable):
+                    apiError = new api_1.APIError(http_status_1.SERVICE_UNAVAILABLE, [err]);
+                    break;
                 // 400
                 default:
                     apiError = new api_1.APIError(http_status_1.BAD_REQUEST, [err]);

@@ -6,7 +6,7 @@
 
 import * as waiter from '@motionpicture/waiter-domain';
 import { NextFunction, Request, Response } from 'express';
-import { BAD_REQUEST, INTERNAL_SERVER_ERROR, NOT_FOUND, TOO_MANY_REQUESTS } from 'http-status';
+import { BAD_REQUEST, FORBIDDEN, INTERNAL_SERVER_ERROR, NOT_FOUND, SERVICE_UNAVAILABLE, TOO_MANY_REQUESTS } from 'http-status';
 
 import { APIError } from '../error/api';
 
@@ -29,9 +29,9 @@ export default (err: any, __: Request, res: Response, next: NextFunction) => {
                 //     break;
 
                 // 403
-                // case (err instanceof waiter.factory.errors.Forbidden):
-                //     apiError = new APIError(FORBIDDEN, [err]);
-                //     break;
+                case (err instanceof waiter.factory.errors.Forbidden):
+                    apiError = new APIError(FORBIDDEN, [err]);
+                    break;
 
                 // 404
                 case (err instanceof waiter.factory.errors.NotFound):
@@ -49,9 +49,9 @@ export default (err: any, __: Request, res: Response, next: NextFunction) => {
                     break;
 
                 // 503
-                // case (err instanceof waiter.factory.errors.ServiceUnavailable):
-                //     apiError = new APIError(SERVICE_UNAVAILABLE, [err]);
-                //     break;
+                case (err instanceof waiter.factory.errors.ServiceUnavailable):
+                    apiError = new APIError(SERVICE_UNAVAILABLE, [err]);
+                    break;
 
                 // 400
                 default:
