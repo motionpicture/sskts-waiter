@@ -98,18 +98,41 @@ jobs:
             gcloud auth activate-service-account --key-file ~/gcp-key.json
             gcloud config set project ${GOOGLE_PROJECT_ID}
             gcloud --quiet app deploy ./app.yaml
-  # prerelease:
-  #   docker:
-  #     - image: circleci/node:8.4
-  #   steps:
-  #     - checkout
-  #     - restore_cache:
-  #         key: dependency-cache-{{ checksum "package.json" }}
-  #     - run:
-  #         name: deploy to azure webapps development
-  #         command: |
-  #           git remote add prerelease ${DEPLOY_TARGET_REPOSITORY_PRERELEASE}
-  #           git push prerelease master 
+  deploy2test:
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - checkout
+      - run:
+          name: Dump Google Cloud Credentials to file
+          command: echo ${GOOGLE_AUTH_TEST} > ~/gcp-key.json
+      - run:
+          name: Set NPM_TOKEN
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ./.npmrc
+      - run:
+          name: Prepare app.yaml
+          command: |
+            echo "runtime: nodejs" >> ./app.yaml
+            echo "env: flex" >> ./app.yaml
+            echo "env_variables:" >> ./app.yaml
+            echo "  NODE_ENV: 'test'" >> ./app.yaml
+            echo "  NPM_TOKEN: '${NPM_TOKEN}'" >> ./app.yaml
+            echo "  WAITER_PASSPORT_ISSUER: '${WAITER_PASSPORT_ISSUER_TEST}'" >> ./app.yaml
+            echo "  WAITER_RULES: '${WAITER_RULES_TEST}'" >> ./app.yaml
+            echo "  WAITER_SECRET: '${WAITER_SECRET_TEST}'" >> ./app.yaml
+            echo "  REDIS_HOST: '${REDIS_HOST_TEST}'" >> ./app.yaml
+            echo "  REDIS_PORT: ${REDIS_PORT_TEST}" >> ./app.yaml
+            echo "  REDIS_KEY: '${REDIS_KEY_TEST}'" >> ./app.yaml
+      - run:
+          name: List files
+          command: ls -la
+      - run:
+          name: Deploy to GCP app engine
+          command: |
+            # gcloud --quiet components update
+            gcloud auth activate-service-account --key-file ~/gcp-key.json
+            gcloud config set project ${GOOGLE_PROJECT_ID_TEST}
+            gcloud --quiet app deploy ./app.yaml
 # Used for orchestrating all jobs.
 workflows:
   version: 2
@@ -129,12 +152,12 @@ workflows:
           filters:
             branches:
               only: develop
-      # - prerelease:
-      #     requires:
-      #       - doc
-      #     filters:
-      #       branches:
-      #         only: /feature\/.+-alpha.+/
+      - deploy2test:
+          requires:
+            - doc
+          filters:
+            branches:
+              only: /feature\/.+-alpha.+/
       # - deploy:
       #     requires:
       #       - doc
