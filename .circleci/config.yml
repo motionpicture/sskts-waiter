@@ -133,11 +133,46 @@ jobs:
             gcloud auth activate-service-account --key-file ~/gcp-key.json
             gcloud config set project ${GOOGLE_PROJECT_ID_TEST}
             gcloud --quiet app deploy ./app.yaml
+  deploy:
+    docker:
+      - image: google/cloud-sdk
+    steps:
+      - checkout
+      - run:
+          name: Dump Google Cloud Credentials to file
+          command: echo ${GOOGLE_AUTH_PRODUCTION} > ~/gcp-key.json
+      - run:
+          name: Set NPM_TOKEN
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ./.npmrc
+      - run:
+          name: Prepare app.yaml
+          command: |
+            echo "runtime: nodejs" >> ./app.yaml
+            echo "env: flex" >> ./app.yaml
+            echo "env_variables:" >> ./app.yaml
+            echo "  NODE_ENV: 'production'" >> ./app.yaml
+            echo "  NPM_TOKEN: '${NPM_TOKEN}'" >> ./app.yaml
+            echo "  WAITER_PASSPORT_ISSUER: '${WAITER_PASSPORT_ISSUER_PRODUCTION}'" >> ./app.yaml
+            echo "  WAITER_RULES: '${WAITER_RULES_PRODUCTION}'" >> ./app.yaml
+            echo "  WAITER_SECRET: '${WAITER_SECRET_PRODUCTION}'" >> ./app.yaml
+            echo "  REDIS_HOST: '${REDIS_HOST_PRODUCTION}'" >> ./app.yaml
+            echo "  REDIS_PORT: ${REDIS_PORT_PRODUCTION}" >> ./app.yaml
+            echo "  REDIS_KEY: '${REDIS_KEY_PRODUCTION}'" >> ./app.yaml
+      - run:
+          name: List files
+          command: ls -la
+      - run:
+          name: Deploy to GCP app engine
+          command: |
+            # gcloud --quiet components update
+            gcloud auth activate-service-account --key-file ~/gcp-key.json
+            gcloud config set project ${GOOGLE_PROJECT_ID_PRODUCTION}
+            gcloud --quiet app deploy ./app.yaml
 # Used for orchestrating all jobs.
 workflows:
   version: 2
 
-  build-test-doc:
+  build-test-doc-deploy:
     jobs:
       - build
       - test:
@@ -158,10 +193,10 @@ workflows:
           filters:
             branches:
               only: /feature\/.+-alpha.+/
-      # - deploy:
-      #     requires:
-      #       - doc
-      #     filters:
-      #       branches:
-      #         only: master
+      - deploy:
+          requires:
+            - doc
+          filters:
+            branches:
+              only: master
 
