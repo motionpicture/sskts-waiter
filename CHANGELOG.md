@@ -16,3 +16,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+
+## v2.0.0 - 2017-12-02
+### Added
+- 本家WAITERを引き継いでv2.0.0としてリリース。
