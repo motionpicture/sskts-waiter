@@ -192,7 +192,7 @@ workflows:
             - doc
           filters:
             branches:
-              only: /feature\/.+-alpha.+/
+              only: feature/test
       - deploy:
           requires:
             - doc
