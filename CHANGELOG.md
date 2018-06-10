@@ -1,9 +1,11 @@
 # Changelog
+
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ## Unreleased
+
 ### Added
 
 ### Changed
@@ -16,6 +18,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 ### Security
 
+- 一時的にnspの例外を追加。
 
 ## v2.0.0 - 2017-12-02
 ### Added
