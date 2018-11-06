@@ -94,7 +94,7 @@ jobs:
       - run:
           name: Deploy to GCP app engine
           command: |
-            # gcloud --quiet components update
+            gcloud --quiet components update
             gcloud auth activate-service-account --key-file ~/gcp-key.json
             gcloud config set project ${GOOGLE_PROJECT_ID}
             gcloud --quiet app deploy ./app.yaml
